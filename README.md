@@ -5,9 +5,9 @@ Cas pratique 1
 
 ## Détails du projet
 
-En tant que nouvelle employée dans une société, je dois reprendre le code d'un employé licencié pour incompétence. Son code vise à analyser les commentaires YouTube en utilisant un `joblib` et une API Flask.
+En tant que nouvelle employée dans une société, je dois reprendre le code d'un employé licencié pour incompétence. Son code vise à analyser les commentaires LaFourchette en utilisant un `joblib` et une API Flask.
 
-Le projet se décompose initialement comme ceci:
+Le projet se décompose **initialement** comme ceci:
 
 ```
 ├── comments_train.csv
@@ -36,6 +36,12 @@ L'application s'ouvre sur `http://localhost:8080/` et a deux routes :
   "text": "cette vidéo est géniale!"
 }
 ```
+
+### Données et modèle
+
+Les données sont un CSV de 1617 commentaires qui sont tous en Français. Ils sont divisés en deux types d'avis: positifs et négatifs. La répartition des classes n'es pas égale (63% de commentaires positifs et 37% de commentaires négatifs).
+
+Le modèle vise à faire de l'analyse de sentiments. La pipeline `sentiment_pipe` est constitué d'un TF-IDF et d'un SVM pour la classification.
 
 Organisation finale
 ------------

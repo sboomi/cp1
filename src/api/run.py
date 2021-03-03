@@ -39,7 +39,7 @@ class SentimentAnalysis(Resource):
                 })
 
         #
-        clf_pipe = load('sentiment_pipe.joblib')
+        clf_pipe = load('models/sentiment_pipe.joblib')
         prediction = clf_pipe.predict([text])[0]
         prediction = "Positif" if prediction == 1 else "Négatif"
         return jsonify({
