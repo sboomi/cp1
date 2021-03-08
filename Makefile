@@ -16,6 +16,8 @@ else
 HAS_CONDA=True
 endif
 
+RAW_CSV_DATA = data/raw/comments_train.csv
+
 #################################################################################
 # COMMANDS                                                                      #
 #################################################################################
@@ -27,7 +29,9 @@ requirements: test_environment
 
 ## Make Dataset
 data: requirements
-	$(PYTHON_INTERPRETER) src/data/make_dataset.py data/raw data/processed
+	$(PYTHON_INTERPRETER) src/data/make_dataset.py \
+	data/raw data/processed \
+	$(RAW_CSV_DATA)
 
 ## Delete all compiled Python files
 clean:

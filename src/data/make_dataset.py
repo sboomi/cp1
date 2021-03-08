@@ -1,19 +1,55 @@
 # -*- coding: utf-8 -*-
 import click
 import logging
+import pandas as pd
+import unicodedata
+import string
 from pathlib import Path
 from dotenv import find_dotenv, load_dotenv
+from nltk import stem
+
+
+def clean_text(txt, stemmer):
+    new_txt = ''.join([c.lower() if c not in string.punctuation else ' ' for c 
+                       in txt])
+    new_txt = (unicodedata.normalize('NFKD', new_txt)
+               .encode('ascii', 'ignore')
+               .decode('utf-8', 'ignore'))
+    new_txt = " ".join([word for word in new_txt.split() if word])
+    new_txt = ' '.join([stemmer.stem(word) for word in new_txt.split()])
+    return new_txt
 
 
 @click.command()
 @click.argument('input_filepath', type=click.Path(exists=True))
 @click.argument('output_filepath', type=click.Path())
-def main(input_filepath, output_filepath):
+@click.argument('csv_file', type=click.Path(exists=True))
+def main(input_filepath, output_filepath, csv_file):
     """ Runs data processing scripts to turn raw data from (../raw) into
         cleaned data ready to be analyzed (saved in ../processed).
     """
+    input_filepath = Path(input_filepath)
+    output_filepath = Path(output_filepath)
+    output_filepath.mkdir(exist_ok=True)
+    
     logger = logging.getLogger(__name__)
     logger.info('making final data set from raw data')
+    logger.info(f"N° of files: {len(list(input_filepath.iterdir()))}")
+    
+    stemmer = stem.regexp.RegexpStemmer('s$|es$|era$|erez$|ions$| <etc> ')
+    logger.info(f"Using {stemmer.__class__.__name__} as stemmer.")
+    
+    logger.info(f"Loading CSV from {csv_file}")
+    df = pd.read_csv(csv_file)
+    
+    logger.info(f"{df.shape[0]} lines / {df.shape[1]} columns")
+    
+    df.comment = df.comment.apply(lambda x: clean_text(x, stemmer=stemmer))
+    
+    df.columns = ['x', 'y']
+    
+    logger.info(f"Saving at {output_filepath / 'comments_clean.csv'}")
+    df.to_csv(output_filepath / "comments_clean.csv", index=None)
 
 
 if __name__ == '__main__':

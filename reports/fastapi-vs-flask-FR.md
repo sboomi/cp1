@@ -69,6 +69,8 @@ De plus, comme Flask fait uniquement du templating, tous les échanges client<->
 
 FastAPI est une bibliothèque de fonctions qui a été créée courant 2019 et qui est entrain de monter rapidement en puissance au cours de l’année 2020, et qui pourrait bien dépasser le framework REST de Django.
 
+![fastapi_star_history](figures\fastapi_star_history.jpg)
+
 La bibliothèque a l’avantage de se limiter uniquement aux fonctions API nécessaires et s’avère être plus rapide que la plupart des frameworks web/API Python existants.
 
 ```python

@@ -17,3 +17,6 @@ flask
 flask-restful
 fastapi
 uvicorn[standard]
+nltk
+unicodedata
+seaborn
