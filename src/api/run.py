@@ -1,6 +1,8 @@
 import os
+import logging
+import coloredlogs
 from flask import Flask, jsonify, request
-from flask_restful import Api, Resource
+from flask_restful import Api, Resource, fields, marshal_with
 from dotenv import load_dotenv, find_dotenv
 from joblib import load
 
@@ -8,12 +10,24 @@ app = Flask(__name__)
 api = Api(app)
 
 
+log_fmt = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+logging.basicConfig(level=logging.INFO, format=log_fmt)
+coloredlogs.install()
+
+
 ML_MODEL = os.environ.get("MODEL_PATH")
 TOKEN = os.environ.get("TOKEN")
 
 
+resource_fields = {
+    'token':   fields.String,
+    'text':    fields.String
+}
+
+
 class Welcome(Resource):
     def get(self):
+        app.logger.info("Sending welcome message.")
         return jsonify({
                     "Message": ("Bonjour, ceci est la beta d'un "
                                 "algorithm d'analyse de sentiment"),
@@ -22,6 +36,7 @@ class Welcome(Resource):
 
 
 class SentimentAnalysis(Resource):
+    @marshal_with(resource_fields)
     def post(self):
         postedData = request.get_json()
 
@@ -41,6 +56,7 @@ class SentimentAnalysis(Resource):
 
         # Checking if token is the good one
         if token != TOKEN:
+            app.logger.error("Invalid token.")
             return jsonify({
                     "Message": "Token Invalide",
                     "Status Code": 401
@@ -50,6 +66,7 @@ class SentimentAnalysis(Resource):
         clf_pipe = load(ML_MODEL)
         prediction = clf_pipe.predict([text])[0]
         prediction = "Positif" if prediction == 1 else "Négatif"
+        app.logger.info(f"Returned prediction with '{prediction}' value")
         return jsonify({
                     "text": text,
                     "prediction": prediction,
@@ -63,6 +80,4 @@ api.add_resource(Welcome, "/welcome")
 
 if __name__ == "__main__":
     load_dotenv(find_dotenv())
-    app.run(debug=False, host='0.0.0.0', port=8080) 
-
-
+    app.run(debug=False, host='0.0.0.0', port=8080)

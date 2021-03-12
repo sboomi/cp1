@@ -3,8 +3,10 @@ import string
 from nltk import stem
 
 
-def clean_text(txt, stemmer):
-    new_txt = ''.join([c.lower() if c not in string.punctuation else ' ' 
+def clean_text(txt: str,
+               stemmer: stem.api.StemmerI
+               ) -> str:
+    new_txt = ''.join([c.lower() if c not in string.punctuation else ' '
                        for c in txt])
     new_txt = (unicodedata.normalize('NFKD', new_txt)
                .encode('ascii', 'ignore')
@@ -19,4 +21,3 @@ def make_ml_prediction(y_input, model):
     y_clean = clean_text(y_input, stemmer)
     y_pred = model.predict(y_clean)
     return y_pred
-    

@@ -12,4 +12,3 @@ def plot_confusion_matrix(y_true, y_pred, fn=None):
     cm = confusion_matrix(y_true, y_pred)
     sns.heatmap(np.round(100 * cm / cm.sum()), annot=True, ax=ax, fmt='.2f')
     fig.savefig(fn)
-    
