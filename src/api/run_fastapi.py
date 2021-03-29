@@ -18,16 +18,12 @@ class PostedData(BaseModel):
 def welcome():
     return {
         "Message": ("Bonjour, ceci est la beta d'un "
-                    "algorithm d'analyse de sentiment"),
-        "Status Code": 200}
+                    "algorithm d'analyse de sentiment")}
 
 
 @app.post("/sentiment")
 def return_prediction(posted_data: PostedData):
     pd_dict = posted_data.dict()
-
-    print(pd_dict['token'])
-    print(TOKEN)
 
     if pd_dict["token"] != TOKEN:
         raise HTTPException(status_code=401, detail="Token invalide")

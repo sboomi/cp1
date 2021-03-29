@@ -5,7 +5,7 @@ import json
 import time
 import datetime as dt
 import coloredlogs
-from joblib import dump
+from joblib import dump, load
 from pathlib import Path
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
@@ -16,8 +16,11 @@ from visualization.visualize import plot_confusion_matrix
 @click.command()
 @click.argument('csv_path', type=click.Path(exists=True))
 @click.argument('model_path', type=click.Path())
+@click.option("--compare-models", "-cm", "comp_model",
+              type=click.Path(exists=True))
 def main(csv_path: str,
-         model_path: str
+         model_path: str,
+         comp_model: str
          ) -> None:
     start_time = time.time()
     logger = logging.getLogger('ml-model')
@@ -32,7 +35,8 @@ def main(csv_path: str,
     dist_fmt = ' / '.join([str(round(v*100, 2)) for v in dist_class.values])
     logger.info(f"Class proportion: {dist_fmt}")
 
-    labels = sorted(df.y.unique().tolist(), reverse=True)
+    labels = sorted(df.y.unique().tolist())
+    logger.info(f"Labels: {labels}")
     X = df.x.values
     y = df.y.apply(lambda x: labels.index(x)).values
 
@@ -43,60 +47,49 @@ def main(csv_path: str,
                                                         shuffle=True,
                                                         stratify=y)
 
-    svm, svm_score = generate_best_model("svm", X_train, y_train)
-    nb, nb_score = generate_best_model("naive_bayes", X_train, y_train)
-    logger.info(f"Generated SVM model with score of {svm_score}")
-    logger.info(f"Generated Naive Bayes model with score of {nb_score}")
-
+    list_models = {
+        "svm": "SVM",
+        "naive_bayes": "Naive Bayes",
+        "lr": "Logistic regression"
+    }
     model_path = Path(model_path)
-    svm_path = model_path / 'svm_pipe.joblib'
-    nb_path = model_path / 'nb_pipe.joblib'
 
-    dump(svm, svm_path)
-    logger.info(f"SVM model saved at {svm_path}")
+    if comp_model:
+        list_models["old_model"] = "Old model"
 
-    dump(nb, nb_path)
-    logger.info(f"Naive Bayes model saved at {nb_path}")
+    for model_abbr, model_name in list_models.items():
+        logger.info(f"Beginning estimation of {model_name}")
+        if model_abbr == "old_model":
+            model = load(comp_model)
+            logger.info(f"Retrieved {model_name} at {comp_model}")
+        else:
+            model, model_score = generate_best_model(model_abbr,
+                                                     X_train, y_train)
+            logger.info(f"Generated {model_name} with score of {model_score}")
+            model_joblib = model_path / f'{model_abbr}_pipe.joblib'
+            dump(model, model_joblib)
+            logger.info(f"{model_name} saved at {model_joblib}")
 
-    # With SVM
-    svm_cr = classification_report(y_test,
-                                   svm.predict(X_test),
-                                   target_names=labels,
-                                   output_dict=True)
+        model_cr = classification_report(y_test,
+                                         model.predict(X_test),
+                                         target_names=labels,
+                                         output_dict=True)
 
-    with open(model_path / 'svm_results.json', 'w') as f:
-        json.dump(svm_cr, f, indent=4)
+        with open(model_path / f'{model_abbr}_results.json', 'w') as f:
+            json.dump(model_cr, f, indent=4)
 
-    logger.info(f"SVM accuracy: {svm_cr['accuracy']}")
-    for label in labels:
-        lab_metrics = svm_cr[label]
-        logger.info(f"CLASS {label.upper()}")
-        for k, v in lab_metrics.items():
-            logger.info(f"SVM {k}: {v}")
+        logger.info(f"{model_name} accuracy: {model_cr['accuracy']}")
+        for label in labels:
+            lab_metrics = model_cr[label]
+            logger.info(f"CLASS {label.upper()}")
+            for k, v in lab_metrics.items():
+                logger.info(f"{model_name} {k}: {v}")
 
-    # With Naive Bayes
-    nb_cr = classification_report(y_test,
-                                  nb.predict(X_test),
-                                  target_names=labels,
-                                  output_dict=True)
+        plot_confusion_matrix(y_test, model.predict(X_test),
+                              labels=labels,
+                              fn=model_path / f'{model_abbr}_cm.png')
+        logger.info(f"Confusion matrix for {model_name} plotted")
 
-    with open(model_path / 'nb_results.json', 'w') as f:
-        json.dump(nb_cr, f, indent=4)
-
-    logger.info(f"Naive Bayes accuracy: {nb_cr['accuracy']}")
-    for label in labels:
-        lab_metrics = nb_cr[label]
-        logger.info(f"CLASS {label.upper()}")
-        for k, v in lab_metrics.items():
-            logger.info(f"Naive Bayes {k}: {v}")
-
-    plot_confusion_matrix(y_test, svm.predict(X_test),
-                          fn=model_path / 'svm_cm.png')
-    logger.info("Confusion matrix for SVM plotted")
-
-    plot_confusion_matrix(y_test, nb.predict(X_test),
-                          fn=model_path / 'naive_bayes_cm.png')
-    logger.info("Confusion matrix for Naive Bayes plotted")
     end_time = time.time()
     tot_time = str(dt.timedelta(seconds=end_time-start_time))
     h, mn, s = tot_time.split(":")

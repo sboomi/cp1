@@ -6,6 +6,7 @@ from sklearn.svm import SVC
 from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import GridSearchCV
 from sklearn.naive_bayes import MultinomialNB
+from sklearn.linear_model import LogisticRegression
 
 
 def generate_best_model(model_name: str,
@@ -13,7 +14,8 @@ def generate_best_model(model_name: str,
                         y: np.ndarray) -> BaseEstimator:
     model_list = {
         "svm": BestSVM(),
-        "naive_bayes": BestNaiveBayes()
+        "naive_bayes": BestNaiveBayes(),
+        'lr': BestLogisticRegression()
     }
 
     model = model_list[model_name]
@@ -56,3 +58,11 @@ class BestNaiveBayes(BestModel):
         self.model = make_pipeline(TfidfVectorizer(), MultinomialNB())
         self.name = MultinomialNB().__class__.__name__
         self.params = {"multinomialnb__alpha": np.linspace(0, 1, 10)}
+
+
+class BestLogisticRegression(BestModel):
+    def __init__(self):
+        super().__init__()
+        self.model = make_pipeline(TfidfVectorizer(), LogisticRegression())
+        self.name = MultinomialNB().__class__.__name__
+        self.params = {"logisticregression__C": np.logspace(0, 5, 10)}

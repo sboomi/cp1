@@ -10,6 +10,12 @@ PROFILE = default
 PROJECT_NAME = cp1-full
 PYTHON_INTERPRETER = python3
 
+ifeq (,$(shell command -v nvcc))
+CUDA_VERSION=none
+else
+CUDA_VERSION = $(shell nvcc --version | grep -oP "\d+\.\d+" | head -n 1)
+endif
+
 ifeq (,$(shell which conda))
 HAS_CONDA=False
 else
@@ -17,6 +23,8 @@ HAS_CONDA=True
 endif
 
 RAW_CSV_DATA = data/raw/comments_train.csv
+CLEAN_CSV_DATA = data/processed/comments_clean.csv
+OLD_MODEL = models/sentiment_pipe.joblib
 
 #################################################################################
 # COMMANDS                                                                      #
@@ -26,6 +34,21 @@ RAW_CSV_DATA = data/raw/comments_train.csv
 requirements: test_environment
 	$(PYTHON_INTERPRETER) -m pip install -U pip setuptools wheel
 	$(PYTHON_INTERPRETER) -m pip install -r requirements.txt
+	ifeq (11.0, $(CUDA_VERSION))
+		$(PYTHON_INTERPRETER) -m pip install torch==1.7.1+cu110 \
+		torchvision==0.8.2+cu110 torchaudio==0.7.2 -f \
+		https://download.pytorch.org/whl/torch_stable.html
+	endif
+	ifeq (11.1, $(CUDA_VERSION))
+		pip install torch==1.8.0+cu111 torchvision==0.9.0+cu111 \
+		torchaudio===0.8.0 -f \
+		https://download.pytorch.org/whl/torch_stable.html
+	endif
+	ifeq (none, $(CUDA_VERSION))
+		pip install torch==1.8.0+cpu torchvision==0.9.0+cpu \
+		torchaudio===0.8.0 -f \
+		https://download.pytorch.org/whl/torch_stable.html
+	endif
 
 ## Make Dataset
 data: requirements

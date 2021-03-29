@@ -71,7 +71,9 @@ FastAPI est une bibliothèque de fonctions qui a été créée courant 2019 et q
 
 ![fastapi_star_history](figures\fastapi_star_history.jpg)
 
-La bibliothèque a l’avantage de se limiter uniquement aux fonctions API nécessaires et s’avère être plus rapide que la plupart des frameworks web/API Python existants.
+La bibliothèque a l'avantage de se limiter uniquement aux fonctions API nécessaires et s’avère être plus rapide que la plupart des frameworks web/API Python existants.
+
+![python_web_frameworks](https://miro.medium.com/proxy/1*NJDSwtMVmyIlvSyYewN3BQ.png)
 
 ```python
 from typing import Optional
