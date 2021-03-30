@@ -12,6 +12,22 @@ from sklearn.linear_model import LogisticRegression
 def generate_best_model(model_name: str,
                         X: np.ndarray,
                         y: np.ndarray) -> BaseEstimator:
+    """Fetches a model from the model list and runs a grid search
+    CV on it. Returns the best model with the best score.
+
+    Models available:
+    * SVM: `svm`
+    * Naive Bayes: `naive_bayes`
+    * Logistic regression: `lr`
+
+    Args:
+        model_name (str): name of the model
+        X (np.ndarray): The data with features
+        y (np.ndarray): The labels
+
+    Returns:
+        BaseEstimator: Best version of the model
+    """
     model_list = {
         "svm": BestSVM(),
         "naive_bayes": BestNaiveBayes(),
@@ -57,7 +73,7 @@ class BestNaiveBayes(BestModel):
         super().__init__()
         self.model = make_pipeline(TfidfVectorizer(), MultinomialNB())
         self.name = MultinomialNB().__class__.__name__
-        self.params = {"multinomialnb__alpha": np.linspace(0, 1, 10)}
+        self.params = {"multinomialnb__alpha": np.linspace(0, 1, 20)}
 
 
 class BestLogisticRegression(BestModel):
@@ -65,4 +81,5 @@ class BestLogisticRegression(BestModel):
         super().__init__()
         self.model = make_pipeline(TfidfVectorizer(), LogisticRegression())
         self.name = MultinomialNB().__class__.__name__
-        self.params = {"logisticregression__C": np.logspace(0, 5, 10)}
+        self.params = {"logisticregression__C": np.logspace(-4, 5, 20),
+                       "logisticregression__penalty": ["l1", "l2"]}

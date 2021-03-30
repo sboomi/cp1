@@ -16,6 +16,11 @@ class PostedData(BaseModel):
 
 @app.get("/welcome")
 def welcome():
+    """Greets the user with a message
+
+    - **Message**: displays `Bonjour, ceci est la beta
+    d'un algorithm d'analyse de sentiment`
+    """
     return {
         "Message": ("Bonjour, ceci est la beta d'un "
                     "algorithm d'analyse de sentiment")}
@@ -23,6 +28,17 @@ def welcome():
 
 @app.post("/sentiment")
 def return_prediction(posted_data: PostedData):
+    """Returns prediction based on posted data
+
+    Args:
+        posted_data (PostedData): [description]
+
+    Raises:
+        HTTPException: [description]
+
+    Returns:
+        [type]: [description]
+    """
     pd_dict = posted_data.dict()
 
     if pd_dict["token"] != TOKEN:

@@ -1,12 +1,22 @@
 import pandas as pd
 import torch
 from torch.utils.data import Dataset, Subset, DataLoader, random_split
-from typing import Tuple, Iterable
+from typing import Tuple, Iterable, Union
 from sklearn.feature_extraction.text import TfidfVectorizer
+from pathlib import Path
 
 
 class CommentDataset(Dataset):
-    def __init__(self, csv_name):
+    """Dataset taking a CSV of comments
+    with an analysis attached
+
+    Args:
+        csv_name (Union[str, Path]): the filename of
+            the CSV. Must have `x` as a column with
+            the comments and `y` as the column with
+            the labels.
+    """
+    def __init__(self, csv_name: Union[str, Path]):
         df = pd.read_csv(csv_name)
 
         self.labels = sorted(df.y.unique().tolist())
@@ -40,7 +50,7 @@ def split_dataset(ds: Dataset,
     Args:
         ds (Dataset): The dataset to be split
         train_size (float, optional): The number of samples or the
-        proportion of the dataset. Defaults to 0.9.
+            proportion of the dataset. Defaults to 0.9.
     Returns:
         Tuple[Subset, Subset]: The training and validation subsets.
     """
@@ -55,6 +65,19 @@ def get_dataloaders(ds: Dataset,
                     bs: Iterable,
                     train_size: float = 0.8
                     ) -> Tuple[DataLoader, DataLoader]:
+    """Function splitting a dataset into a train and validation
+    loader ready for model fitting.
+
+    Args:
+        ds (Dataset): the full dataset
+        bs (Iterable): a list or tuple of a train and val batch sizes
+        train_size (float, optional): The number of samples or the
+            proportion of the dataset. Defaults to 0.8.
+
+    Returns:
+        Tuple[DataLoader, DataLoader]: The training and validation
+            dataloaders
+    """
     train_bs, val_bs = bs
     train_ds, val_ds = split_dataset(ds, train_size=train_size)
     train_dl = DataLoader(train_ds, batch_size=train_bs)

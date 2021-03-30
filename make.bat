@@ -9,7 +9,7 @@ SET RAW_CSV=%RAW%comments_train.csv
 SET CLEAN_CSV=%PROCESSED%comments_clean.csv
 SET MODEL_FOLDER=.\models\
 SET OLD_MODEL=%MODEL_FOLDER%sentiment_pipe.joblib
-SET EPOCHS=50
+SET EPOCHS=100
 SET TRAIN_BS=256
 SET VAL_BS=64
 SET SEED=32451365
@@ -48,7 +48,6 @@ if "%1" == "traindeep" (
     %PYTHON_INTERPRETER% .\src\train_nn_model.py ^
 	%CLEAN_CSV% ^
 	%MODEL_FOLDER% ^
-	-cm %OLD_MODEL% ^
 	--batch-size %TRAIN_BS% %VAL_BS% ^
 	--epochs=%EPOCHS%
 

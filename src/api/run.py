@@ -27,6 +27,11 @@ resource_fields = {
 
 class Welcome(Resource):
     def get(self):
+        """[summary]
+
+        Returns:
+            [type]: [description]
+        """
         app.logger.info("Sending welcome message.")
         return jsonify({
                     "Message": ("Bonjour, ceci est la beta d'un "
@@ -38,6 +43,11 @@ class Welcome(Resource):
 class SentimentAnalysis(Resource):
     @marshal_with(resource_fields)
     def post(self):
+        """[summary]
+
+        Returns:
+            [type]: [description]
+        """
         postedData = request.get_json()
 
         # Checking if all fields are present

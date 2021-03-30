@@ -10,4 +10,4 @@
 
 * **Type :** Pipeline
 * **Etapes :** TF-IDF, SVM (C=1000, gamma=0.001)
-* **score moyen (tout le dataset) :** 88%
+* **score sur 20% du dataset :** 64%

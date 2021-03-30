@@ -1,5 +1,6 @@
 import click
 import logging
+import numpy as np
 import pandas as pd
 import json
 import time
@@ -18,10 +19,13 @@ from visualization.visualize import plot_confusion_matrix
 @click.argument('model_path', type=click.Path())
 @click.option("--compare-models", "-cm", "comp_model",
               type=click.Path(exists=True))
+@click.option("--random-seed", "-rs", "seed", type=int, default=32451365)
 def main(csv_path: str,
          model_path: str,
-         comp_model: str
+         comp_model: str,
+         seed: int = 32451365
          ) -> None:
+    rng = np.random.RandomState(seed)
     start_time = time.time()
     logger = logging.getLogger('ml-model')
     logger.info("Begin training on traditional ML")
@@ -45,7 +49,8 @@ def main(csv_path: str,
                                                         y,
                                                         train_size=0.8,
                                                         shuffle=True,
-                                                        stratify=y)
+                                                        stratify=y,
+                                                        random_state=rng)
 
     list_models = {
         "svm": "SVM",

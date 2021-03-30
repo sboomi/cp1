@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Tuple
 from data.dataset import CommentDataset, get_dataloaders
 from models.nn_model import SimpleNN, train_model
+from visualization.visualize import plot_cm_nn, plot_loss_acc
 
 
 @click.command()
@@ -19,12 +20,9 @@ from models.nn_model import SimpleNN, train_model
 @click.option("--batch-size", "-bs", "bs",
               nargs=2, type=click.Tuple([int, int]))
 @click.option("--epochs", "-ep", "n_epochs", type=int)
-@click.option("--compare-models", "-cm", "comp_model",
-              type=click.Path(exists=True))
 @click.option("--random-seed", "-rs", "seed", type=int, default=32451365)
 def main(csv_path: str,
          model_path: str,
-         comp_model: str,
          bs: Tuple[int, int],
          n_epochs: int,
          seed: int
@@ -60,6 +58,12 @@ def main(csv_path: str,
 
     with open(model_path / 'nn_results.pkl', 'wb') as f:
         pickle.dump(results, f)
+
+    logger.info("Plotting loss results")
+    plot_loss_acc(results, fn=model_path / 'nn_loss.png')
+
+    logger.info("Plotting last confusion matrix results")
+    plot_cm_nn(results, labels=ds.labels, fn=model_path / 'nn_cm.png')
 
     end_time = time.time()
     tot_time = str(dt.timedelta(seconds=end_time-start_time))
