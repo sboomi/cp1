@@ -26,18 +26,18 @@ def welcome():
                     "algorithm d'analyse de sentiment")}
 
 
-@app.post("/sentiment")
+@app.post("/sentiment",
+          response_model=PostedData,
+          summary="Returns SenAna prediction")
 def return_prediction(posted_data: PostedData):
-    """Returns prediction based on posted data
+    """
+    Uses the best model with the information given to return
+    a prediction. Only accepts French comments for maximum
+    results.
 
-    Args:
-        posted_data (PostedData): [description]
-
-    Raises:
-        HTTPException: [description]
-
-    Returns:
-        [type]: [description]
+    - **text**: the original message from your posted data
+    - **prediction**: whether your comment is positive or negative
+    - **status_code**: the status code of the response
     """
     pd_dict = posted_data.dict()
 
