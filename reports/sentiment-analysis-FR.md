@@ -126,7 +126,7 @@ Les résultats ont été mesurés selon les critères suivants :
 
 Les modèles sélectionnés présentent une amélioration par rapport au modèle original.
 
-![results_hm](C:\Users\User\Documents\Projects\Python-projects\Work\cp1\reports\figures\results_hm.png)
+![results_hm](figures/results_hm.png)
 
 Chacun des 4 modèles dépassent 85% de justesse. On remarque que le modèle original a de pauvres performances dans ses prédictions négatives. En effet, bien qu'il ait des performances correctes pour prédire les bons commentaires, il est trop biaisé dans ses prédictions :
 
